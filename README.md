@@ -16,6 +16,7 @@ Uploaded are:
 My_SRC directory
 EXPREF directory (namelists, file_def, field_def and other xml files)
 
+Example output is found here:  https://doi.org/10.5281/zenodo.4781285
 
 **Installing:**
 
@@ -30,12 +31,11 @@ Alessandro Tagliabue
 List of contributors who participated in this project:
 
 Camille Richon
-Nicholas Hawco
+Nick Hawco
 
 **License:**
 This project is licensed under the CeCILL license (https://cecill.info/licences.en.html).
 
 **Acknowledgments:**
 
-Inspiration
-etc ...
+Funded by ERC project BYONIC

@@ -1,6 +1,6 @@
 **Project Title:**
 
-PISCES-BYONIC considers the cycling of the micronutrients cobalt, copper, manganese and zinc as nutrients in the std PISCES framework.
+PISCES-BYONIC considers the cycling of the micronutrients cobalt, copper, manganese and zinc as nutrients in the standard p4z PISCES framework
 
 **Papers:**
 
@@ -10,9 +10,10 @@ Richon, C., and A. Tagliabue (2019), Insights into the Major Processes Driving t
 
 **Prerequisites / Getting started:**
 
-svn r11143: http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/release-4.0
+svn: http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/release-4.0 r11143
 
-Uploaded are:
+Apply the below to the /cfg/ directory:
+
 My_SRC directory
 EXPREF directory (namelists, file_def, field_def and other xml files)
 
@@ -28,7 +29,7 @@ Add an annual mean ptrc file (ORCA2) so that users can explore the output of the
 
 Alessandro Tagliabue
 
-List of contributors who participated in this project:
+contributors:
 
 Camille Richon
 Nick Hawco
@@ -38,4 +39,4 @@ This project is licensed under the CeCILL license (https://cecill.info/licences.
 
 **Acknowledgments:**
 
-Funded by ERC project BYONIC
+Funded by ERC under the Horizons 2020 Framework - project ID: BYONIC

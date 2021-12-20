@@ -109,12 +109,6 @@ MODULE sms_pisces
    REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:)  ::   bacbio    !: ??? Implici Necessary with Co model
    REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:)  ::   phyrel     !: relativenecessary with Co model
    REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:)  ::   zmnfree    !: Free cobal
-   REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:)  ::   qminmnd  
-   REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:)  ::   qminmnn
-   REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:)  ::   qminfed
-   REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:)  ::   qminfen
-   REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:)  ::   qminczd
-   REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:)  ::   qminczn
 
    !!*  Sinking speed
    REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:) ::   wsbio3   !: POC sinking speed 
@@ -196,7 +190,7 @@ CONTAINS
             &      prodgoc(jpi,jpj,jpk) , consgoc(jpi,jpj,jpk) ,    &
             &      mu_n(jpi,jpj,jpk) , mu_d(jpi,jpj,jpk) ,    &
             &      mu_nm(jpi,jpj,jpk) , mu_dm(jpi,jpj,jpk) ,    &
-            &      blim   (jpi,jpj,jpk) , qminfed(jpi,jpj,jpk),qminfen(jpi,jpj,jpk),STAT=ierr(4) )
+            &      blim   (jpi,jpj,jpk) ,                         STAT=ierr(4) )
 
          !* Variable for chemistry of the CO2 cycle
          ALLOCATE( ak13  (jpi,jpj,jpk) ,                            &
@@ -228,8 +222,6 @@ CONTAINS
          ENDIF
         IF (ln_manganese) THEN
           ALLOCATE(zmnfree(jpi,jpj,jpk)    , wssmn(jpi,jpj,jpk) ,  STAT=ierr(14) )
-          ALLOCATE(qminmnd(jpi,jpj,jpk), qminmnn(jpi,jpj,jpk), qminczd(jpi,jpj,jpk) &
-          &        ,qminczn(jpi,jpj,jpk)  ,  STAT=ierr(15) )
         ENDIF
        !
       IF( ln_p5z ) THEN

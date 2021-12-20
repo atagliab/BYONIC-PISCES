@@ -51,9 +51,8 @@ MODULE p4zlim
    REAL(wp), PUBLIC ::  kscod, k1cod
    REAL(wp), PUBLIC ::  ksmnn 
    REAL(wp), PUBLIC ::  ksmnd
-   LOGICAL , PUBLIC ::  ln_colim
-   LOGICAL , PUBLIC ::  ln_colim_int
-   LOGICAL , PUBLIC ::  ln_qmndyn
+   LOGICAL , PUBLIC :: ln_colim
+   LOGICAL , PUBLIC :: ln_colim_int
    REAL(wp), PUBLIC ::  qmnmin
    REAL(wp), PUBLIC ::  mnchln
    REAL(wp), PUBLIC ::  mnchld
@@ -131,8 +130,17 @@ CONTAINS
       REAL(wp) ::   zdenom, zratio, zironmin
       REAL(wp) ::   zconc1d, zconc1dnh4, zconc0n, zconc0nnh4   
       REAL(wp) ::   pco2, po4, zchlc, zqmn, zqcozn, zmu, mnued, coznued
-      REAL(wp) ::   mnuen, coznuen, qmnmin1
+      REAL(wp) ::   mnuen, coznuen
+     REAL(wp), DIMENSION(jpi,jpj,jpk) :: qfepsn, qfeno3n, qferesn, xlimnnit
+      REAL(wp), DIMENSION(jpi,jpj,jpk) :: qfepsd, qfeno3d, qferesd, xlimdnit
       !!---------------------------------------------------------------------
+      !
+      qfepsn(:,:,:) = 0._wp  ;      qfeno3n(:,:,:) = 0._wp
+      qferesn(:,:,:) = 0._wp ;      qfepsd(:,:,:) = 0._wp
+      qfeno3d(:,:,:) = 0._wp ;      qferesd(:,:,:) = 0._wp
+      xnanonh4(:,:,:) = 0._wp ;     xdiatnh4(:,:,:) = 0._wp
+      xnanono3(:,:,:) = 0._wp ;     xdiatno3(:,:,:) = 0._wp
+      xlimnnit(:,:,:) = 0._wp ;     xlimdnit(:,:,:) = 0._wp
       !
       IF( ln_timing )   CALL timing_start('p4z_lim')
       !
@@ -206,12 +214,15 @@ CONTAINS
                !
                zlim1    = xnanono3(ji,jj,jk) + xnanonh4(ji,jj,jk)
                zlim2    = trb(ji,jj,jk,jppo4) / ( trb(ji,jj,jk,jppo4) + zconc0nnh4 )
+               xlimnnit(ji,jj,jk) = zlim1
                zratio   = trb(ji,jj,jk,jpnfe) * z1_trbphy 
                zironmin = xcoef1 * trb(ji,jj,jk,jpnch) * z1_trbphy + xcoef2 * zlim1 + xcoef3 * xnanono3(ji,jj,jk)
-               qminfen(ji,jj,jk) = zironmin + qnfelim
                zlim3    = MAX( 0.,( zratio - zironmin ) / qnfelim )
                xnanopo4(ji,jj,jk) = zlim2
                xlimnfe (ji,jj,jk) = MIN( 1., zlim3 )
+               qfepsn  (ji,jj,jk) = xcoef1 * trb(ji,jj,jk,jpnch) * z1_trbphy
+               qfeno3n (ji,jj,jk) = xcoef3 * xnanono3(ji,jj,jk)
+               qferesn (ji,jj,jk) = xcoef2 * zlim1
                xlimphy (ji,jj,jk) = MIN( zlim1, zlim2, zlim3 )
                IF (ln_manganese .AND. ln_zinc .AND. ln_cobalt) THEN
                IF ( ln_colim ) THEN
@@ -222,19 +233,8 @@ CONTAINS
                zmu     =  mu_nm(ji,jj,jk) + rtrn
                zqmn    = trb(ji,jj,jk,jpmnn) * z1_trbphy
                zqcozn   = ( trb(ji,jj,jk,jpznn) + 1.E-3 * trb(ji,jj,jk,jpcon) ) * z1_trbphy
-               IF ( ln_qmndyn) THEN
-               qmnmin1 = max( 0.2e-6, qmnmin * (1. - xlimnfe(ji,jj,jk) ) * (1. - ( zchlc / ( 0.033 * 12. ) ) ) )
-               zmnuen(ji,jj,jk)   = (1/rday) / ( qmnmin1 + ( mnchln * zchlc ) )
-               ELSE
                zmnuen(ji,jj,jk)   = (1/rday) / ( qmnmin + ( mnchln * zchlc ) )
-               ENDIF
-!               qminmnn(ji,jj,jk) = 1.E-6 + qmnmin + ( mnchln * zchlc )
-               qminmnn(ji,jj,jk) = qmnmin + ( mnchln * zchlc )
                zcoznuen(ji,jj,jk) = (1/rday) / ( qcoznmin + ( qcozncan * ( kco2**2 /  &
-               &                    ( kco2**2 + pco2**2 ) ) )   &
-               &                  + ( qcoznapn * ( kpo4**3 / ( kpo4**3 + po4**3 ) ) ) )
-!               qminczn(ji,jj,jk) = 5.E-6 + ( qcoznmin + ( qcozncan * ( kco2**2 /  &
-               qminczn(ji,jj,jk) = ( qcoznmin + ( qcozncan * ( kco2**2 / &
                &                    ( kco2**2 + pco2**2 ) ) )   &
                &                  + ( qcoznapn * ( kpo4**3 / ( kpo4**3 + po4**3 ) ) ) )
                !! UE is in Q per second, mulitply by quota to get per second,
@@ -259,39 +259,32 @@ CONTAINS
                xdiatnh4(ji,jj,jk) = trb(ji,jj,jk,jpnh4) * zconc1d    * zdenom
                !
                zlim1    = xdiatno3(ji,jj,jk) + xdiatnh4(ji,jj,jk)
+               xlimdnit(ji,jj,jk) = zlim1
                zlim2    = trb(ji,jj,jk,jppo4) / ( trb(ji,jj,jk,jppo4) + zconc1dnh4  )
                zlim3    = trb(ji,jj,jk,jpsil) / ( trb(ji,jj,jk,jpsil) + xksi(ji,jj) )
                zratio   = trb(ji,jj,jk,jpdfe) * z1_trbdia
                zironmin = xcoef1 * trb(ji,jj,jk,jpdch) * z1_trbdia + xcoef2 * zlim1 + xcoef3 * xdiatno3(ji,jj,jk)
                zlim4    = MAX( 0., ( zratio - zironmin ) / qdfelim )
-               qminfed(ji,jj,jk) = zironmin + qdfelim
                xdiatpo4(ji,jj,jk) = zlim2
                xlimdfe (ji,jj,jk) = MIN( 1., zlim4 )
+               qfepsd  (ji,jj,jk) = xcoef1 * trb(ji,jj,jk,jpdch) * z1_trbdia
+               qfeno3d (ji,jj,jk) = xcoef3 * xdiatno3(ji,jj,jk)
+               qferesd (ji,jj,jk) = xcoef2 * zlim1
                xlimdia (ji,jj,jk) = MIN( zlim1, zlim2, zlim3, zlim4 )
                xlimsi  (ji,jj,jk) = MIN( zlim1, zlim2, zlim4 )
                IF (ln_manganese .AND. ln_zinc .AND. ln_cobalt) THEN
                IF ( ln_colim ) THEN
                po4     = trb(ji,jj,jk,jppo4) * po4r + rtrn
+!               pco2    = pco2s(ji,jj) + rtrn
                pco2    = co2aq(ji,jj,jk)
                zchlc   = trb(ji,jj,jk,jpdch) * z1_trbdia
                zmu     =  mu_dm(ji,jj,jk) + rtrn
                zqmn    = trb(ji,jj,jk,jpmnd) * z1_trbdia
                zqcozn   = ( trb(ji,jj,jk,jpznd) + 1.E-3 * trb(ji,jj,jk,jpcod) ) * z1_trbdia
-               IF ( ln_qmndyn) THEN
-               qmnmin1 = max( 0.2e-6, qmnmin * (1. - xlimnfe(ji,jj,jk) ) * (1. - ( zchlc / ( 0.05 * 12. ) ) ) )
-               zmnued(ji,jj,jk)   = (1/rday) / ( qmnmin1 + ( mnchld * zchlc ) )
-               ELSE
                zmnued(ji,jj,jk)   = (1/rday) / ( qmnmin + ( mnchld * zchlc ) )
-               ENDIF
-!               qminmnd(ji,jj,jk)  = 1.E-6 + ( qmnmin + ( mnchld * zchlc ) )
-               qminmnd(ji,jj,jk)  = ( qmnmin + ( mnchld * zchlc ) )
                zcoznued(ji,jj,jk) = (1/rday) / ( qcoznmin + ( qcozncad * ( kco2**2 /  &  
                &                    ( kco2**2 + pco2**2 ) ) )   &
                &                  + ( qcoznapd * ( kpo4**3 / ( kpo4**3 + po4**3 ) ) ) ) 
-!               qminczd(ji,jj,jk)  = 5.E-6 + ( qcoznmin + ( qcozncad * ( kco2**2 /  &
-               qminczd(ji,jj,jk)  = ( qcoznmin + ( qcozncad * ( kco2**2 /  &
-               &                    ( kco2**2 + pco2**2 ) ) )   &
-               &                  + ( qcoznapd * ( kpo4**3 / ( kpo4**3 + po4**3 ) ) ) )
                !! UE is in Q per second, mulitply by quota to get per second,
                !then divide by mu_max to get unitless
                mnlimd(ji,jj,jk)   = MIN( 1., ( zmnued(ji,jj,jk)  * zqmn ) / zmu )
@@ -369,6 +362,16 @@ CONTAINS
         IF( iom_use( "COLIMD"  ) )   CALL iom_put( "COLIMN" , colimn(:,:,:) *tmask(:,:,:)  )  !
         IF( iom_use( "PCO2"  ) )   CALL iom_put( "PCO2" , pco2s(:,:) *tmask(:,:,1)  )  !
         IF( iom_use( "CO2AQ"  ) )   CALL iom_put( "CO2AQ" , co2aq(:,:,:) *tmask(:,:,:)  )  !
+        IF( iom_use( "QFePSN"  ) )   CALL iom_put( "QFePSN" , qfepsn(:,:,:) * tmask(:,:,:) )  ! Iron limitation term
+        IF( iom_use( "QFeNO3N" ) )   CALL iom_put( "QFeNO3N", qfeno3n(:,:,:) * tmask(:,:,:) )  ! Iron limitation term
+        IF( iom_use( "QFeRESN" ) )   CALL iom_put( "QFeRESN", qferesn(:,:,:) * tmask(:,:,:) )  ! Iron limitation term
+        IF( iom_use( "QFePSD"  ) )   CALL iom_put( "QFePSD" , qfepsd(:,:,:) * tmask(:,:,:) )  ! Iron limitation term
+        IF( iom_use( "QFeNO3D" ) )   CALL iom_put( "QFeNO3D", qfeno3d(:,:,:) * tmask(:,:,:) )  ! Iron limitation term
+        IF( iom_use( "QFeRESD" ) )   CALL iom_put( "QFeRESD", qferesd(:,:,:) * tmask(:,:,:) )  ! Iron limitation term
+        IF( iom_use( "LNN"    ) )   CALL iom_put( "LNN"   , xlimnnit(:,:,:) * tmask(:,:,:) )  ! Iron limitation term
+        IF( iom_use( "LDN"    ) )   CALL iom_put( "LDN"   , xlimdnit(:,:,:) * tmask(:,:,:) )  ! Iron limitation term
+        IF( iom_use( "LNP"    ) )   CALL iom_put( "LNP"   , xnanopo4(:,:,:) * tmask(:,:,:) )  ! Iron limitation term
+        IF( iom_use( "LDP"    ) )   CALL iom_put( "LDP"   , xdiatpo4(:,:,:) * tmask(:,:,:) )  ! Iron limitation term
       ENDIF
       !
       IF( ln_timing )   CALL timing_stop('p4z_lim')
@@ -394,7 +397,7 @@ CONTAINS
          &                concbno3, concbnh4, xsizedia, xsizephy, xsizern, xsizerd,          & 
          &                xksi1, xksi2, xkdoc, qnfelim, qdfelim, caco3r, oxymin,kscun, kscud,  &
          &                ksznn, ksznd, kscon, kscod, ksmnn, ksmnd, & 
-         &                ln_colim, ln_colim_int, ln_qmndyn, qmnmin, mnchln, mnchld, qcoznmin, qcozncan, qcozncad, &
+         &                ln_colim, ln_colim_int, qmnmin, mnchln, mnchld, qcoznmin, qcozncan, qcozncad, &
          &                kco2, qcoznapn, qcoznapd, kpo4
       !!----------------------------------------------------------------------
       !

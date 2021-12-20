@@ -60,7 +60,12 @@ MODULE p4zprod
    REAL(wp), PUBLIC ::  qznmaxd
    LOGICAL , PUBLIC ::  ln_mnzn_int
    LOGICAL , PUBLIC ::  ln_cozn_int
-   LOGICAL , PUBLIC ::  ln_mnqzn_int
+   REAL(wp), PUBLIC ::   mnznen
+   REAL(wp), PUBLIC ::   cozned
+   REAL(wp), PUBLIC ::   mnzned
+   REAL(wp), PUBLIC ::   znmnen
+   REAL(wp), PUBLIC ::   znmned
+   REAL(wp), PUBLIC ::   mncoed
    REAL(wp), PUBLIC, ALLOCATABLE, SAVE, DIMENSION(:,:,:) ::   quotan   !: proxy of N quota in Nanophyto
    REAL(wp), PUBLIC, ALLOCATABLE, SAVE, DIMENSION(:,:,:) ::   quotad   !: proxy of N quota in diatomee
    
@@ -111,7 +116,7 @@ CONTAINS
       REAL(wp) :: znf1, dzn, zn_fun, dco, dmn
       REAL(wp), DIMENSION(jpi,jpj,jpk) :: zprocon, zprocod
       REAL(wp), DIMENSION(jpi,jpj,jpk) :: zpromnn, zpromnd, zmnt
-      REAL(wp) :: zqmn, zqzn, zqcozn, zmax2, vmzn, vmmn, vmco, vm
+      REAL(wp) :: zqmn, zqzn, zqcozn, zmax2, vmzn, vmmn, vmco
       REAL(wp), DIMENSION(jpi,jpj,jpk) :: mnznd, mnznn, znmnd, znmnn, coznd, mncod
       REAL(wp), DIMENSION(jpi,jpj,jpk) :: zmax_mnznn, zmax_mnznd
       !!---------------------------------------------------------------------
@@ -290,14 +295,9 @@ CONTAINS
                   zprorcan(ji,jj,jk) = zprbio(ji,jj,jk)  * xlimphy(ji,jj,jk) * trb(ji,jj,jk,jpphy) * rfact2
                   zpronewn(ji,jj,jk)  = zprorcan(ji,jj,jk)* xnanono3(ji,jj,jk) / ( xnanono3(ji,jj,jk) + xnanonh4(ji,jj,jk) + rtrn )
                   !
-!                  zprofen(ji,jj,jk) = fecnm * zprmaxn(ji,jj,jk) * ( 1.0 - fr_i(ji,jj) )  &
-                     vm = qminfen(ji,jj,jk) + ( (fecnm) - qminfen(ji,jj,jk) ) * ( xnanono3(ji,jj,jk) + xnanonh4(ji,jj,jk) )
-                     vm = vm + ( MIN( 40.E-6, fecnm-vm) * ( biron(ji,jj,jk)**2 / ( biron(ji,jj,jk)**2 + 2.E-9**2 ) ) )
-!                  zratio = trb(ji,jj,jk,jpnfe) / ( trb(ji,jj,jk,jpphy) * fecnm + rtrn )
-                  zratio = trb(ji,jj,jk,jpnfe) / ( trb(ji,jj,jk,jpphy) * vm + rtrn )
-                  zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) )
-
-                  zprofen(ji,jj,jk) = ( vm ) * zprmaxn(ji,jj,jk) * ( 1.0 - fr_i(ji,jj) )  &
+                  zratio = trb(ji,jj,jk,jpnfe) / ( trb(ji,jj,jk,jpphy) * fecnm + rtrn )
+                  zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) ) 
+                  zprofen(ji,jj,jk) = fecnm * zprmaxn(ji,jj,jk) * ( 1.0 - fr_i(ji,jj) )  &
                   &             * ( 4. - 4.5 * xlimnfe(ji,jj,jk) / ( xlimnfe(ji,jj,jk) + 0.5 ) )    &
                   &             * biron(ji,jj,jk) / ( biron(ji,jj,jk) + concnfe(ji,jj,jk) )  &
                   &             * zmax * trb(ji,jj,jk,jpphy) * rfact2
@@ -307,14 +307,7 @@ CONTAINS
                   !
                   zratio = trb(ji,jj,jk,jpdfe) / ( trb(ji,jj,jk,jpdia) * fecdm + rtrn )
                   zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) ) 
-!                  zprofed(ji,jj,jk) = fecdm * zprmaxd(ji,jj,jk) * ( 1.0 - fr_i(ji,jj) )  &
-                     vm = qminfed(ji,jj,jk) + ( (fecdm) - qminfed(ji,jj,jk) ) * ( xdiatno3(ji,jj,jk) + xdiatnh4(ji,jj,jk) )
-                     vm = vm + ( MIN( 40.E-6, fecdm-vm) * ( biron(ji,jj,jk)**2 / ( biron(ji,jj,jk)**2 + 2.E-9**2 ) ) )
-!                  zratio = trb(ji,jj,jk,jpdfe) / ( trb(ji,jj,jk,jpdia) * fecdm + rtrn )
-                  zratio = trb(ji,jj,jk,jpdfe) / ( trb(ji,jj,jk,jpdia) * vm + rtrn )
-                  zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) )
-
-                  zprofed(ji,jj,jk) = ( vm )* zprmaxd(ji,jj,jk) * ( 1.0 - fr_i(ji,jj) )  &
+                  zprofed(ji,jj,jk) = fecdm * zprmaxd(ji,jj,jk) * ( 1.0 - fr_i(ji,jj) )  &
                   &             * ( 4. - 4.5 * xlimdfe(ji,jj,jk) / ( xlimdfe(ji,jj,jk) + 0.5 ) )    &
                   &             * biron(ji,jj,jk) / ( biron(ji,jj,jk) + concdfe(ji,jj,jk) )  &
                   &             * zmax * trb(ji,jj,jk,jpdia) * rfact2
@@ -364,16 +357,14 @@ CONTAINS
                      zratio = cupmn * po4r
                      zratio = trb(ji,jj,jk, jpcun) / ( trb(ji,jj,jk,jpphy) * zratio + rtrn )
                      zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) )
-                     vm = ( cupmn * po4r ) * MAX( 0.2, (xnanono3(ji,jj,jk) +xnanonh4(ji,jj,jk) ) )
-                     zprocun(ji,jj,jk) = ( vm ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
+                     zprocun(ji,jj,jk) = ( cupmn * po4r ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
                   &             * dcu / ( dcu + concncu(ji,jj,jk) )  &
                   &             * zmax * trb(ji,jj,jk,jpphy) * rfact2
 ! Diatoms:
                      zratio = cupmd * po4r
                      zratio = trb(ji,jj,jk, jpcud) / ( trb(ji,jj,jk,jpdia) * zratio + rtrn )
                      zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) )
-                     vm = ( cupmn * po4r ) * MAX( 0.2 , (xdiatno3(ji,jj,jk) + xdiatnh4(ji,jj,jk) ) )
-                     zprocud(ji,jj,jk) = ( vm ) *zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
+                     zprocud(ji,jj,jk) = ( cupmd * po4r ) *zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
                   &             * dcu / ( dcu + concdcu(ji,jj,jk) )  &
                   &             * zmax * trb(ji,jj,jk,jpdia) * rfact2
                ENDIF
@@ -390,8 +381,8 @@ CONTAINS
                IF( etot_ndcy(ji,jj,jk) > 1.E-3 ) THEN
 ! set bioavailable nutrient pools:
 
-!                     dmn = max( zmnfree(ji,jj,jk), 0. )
-                     dmn = max( trb(ji,jj,jk,jpdmn), 0. )
+                     dmn = max( zmnfree(ji,jj,jk), 0. )
+!                     dmn = max( trb(ji,jj,jk,jpdmn), 0. )
                      dzn = max( bzinc(ji,jj,jk) , 0. )
 !                     dzn = trb(ji,jj,jk,jpdzn)
                      dco = max( zcofree(ji,jj,jk) * 1.E-3,  0. )
@@ -441,8 +432,8 @@ CONTAINS
                  & * (1.0 - fr_i(ji,jj)) * trb(ji,jj,jk,jpdia) * rfact2
 !!!********************************************************************
 ! nanos, copy from stnd:
-!                     dmn = max(zmnfree(ji,jj,jk), 0. )
-                     dmn = max( trb(ji,jj,jk,jpdmn), 0. )
+                     dmn = max(zmnfree(ji,jj,jk), 0. )
+!                     dmn = max( trb(ji,jj,jk,jpdmn), 0. )
                      zratio = mnpmn * po4r
                      zratio = trb(ji,jj,jk, jpmnn) / ( trb(ji,jj,jk,jpphy) * zratio + rtrn )
                      zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) )
@@ -487,75 +478,71 @@ CONTAINS
                IF( etot_ndcy(ji,jj,jk) > 1.E-3 ) THEN
                      dzn = max( bzinc(ji,jj,jk) , 0. )
 ! Nanos:
-!                     vm = ( znpmn * po4r ) * MAX( 0.2, (xnanono3(ji,jj,jk) + xnanonh4(ji,jj,jk) ) )
-                     vm = qminczn(ji,jj,jk) + ( (znpmn * po4r) - qminczn(ji,jj,jk) ) * ( xnanono3(ji,jj,jk) + xnanonh4(ji,jj,jk) )
                      zratio = znpmn * po4r
-                     zratio = vm
                      zratio = trb(ji,jj,jk, jpznn) / ( trb(ji,jj,jk,jpphy) * zratio + rtrn )
                      zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) )
       IF ( ln_comnzn_simple) THEN
                  zqcozn = ( trb(ji,jj,jk,jpznn) + 1.E-3 * trb(ji,jj,jk,jpcon) ) / ( trb(ji,jj,jk,jpphy) + rtrn )
                  zmax2 = MIN( 1., ( zcoznuen(ji,jj,jk)  * zqcozn ) / (mu_nm(ji,jj,jk) + rtrn) )
-      IF (ln_mnqzn_int) THEN
+      IF (ln_mnzn_int) THEN
                  zmax_mnznn(ji,jj,jk) = MAX( 0.1, ( 1. - zratio ) / ABS( 1.05 - zratio ) )
+!                 zmax_mnznn(ji,jj,jk) = MAX( 0.25, ( 1. - zratio ) / ABS( 1.05 - zratio ) )
       ENDIF
       IF( ln_fezn ) THEN
-                     zproznn(ji,jj,jk) = ( vm ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
+                     zproznn(ji,jj,jk) = ( znpmn * po4r ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
                   &             * dzn / ( dzn + concnzn(ji,jj,jk) )  &
                   &             * ( 4. - 4.5 * xlimnfe(ji,jj,jk) / ( xlimnfe(ji,jj,jk) + 0.5 ) )    &
                   &             * ( 4. - 4.5 * zmax2 / ( zmax2 + 0.5 ) )    &
                   &             * zmax * trb(ji,jj,jk,jpphy) * rfact2
       ELSE
-                     zproznn(ji,jj,jk) = ( vm ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
+                     zproznn(ji,jj,jk) = ( znpmn * po4r ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
                   &             * dzn / ( dzn + concnzn(ji,jj,jk) )  &
                   &             * ( 4. - 4.5 * zmax2 / ( zmax2 + 0.5 ) )    &
                   &             * zmax * trb(ji,jj,jk,jpphy) * rfact2
       ENDIF ! ln_fezn
       ELSE ! ln_comnzn_simple
       IF( ln_fezn ) THEN
-                     zproznn(ji,jj,jk) = ( vm ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
+                     zproznn(ji,jj,jk) = ( znpmn * po4r ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
                   &             * dzn / ( dzn + concnzn(ji,jj,jk) )  &
                   &             * ( 4. - 4.5 * xlimnfe(ji,jj,jk) / ( xlimnfe(ji,jj,jk) + 0.5 ) )    &
                   &             * zmax * trb(ji,jj,jk,jpphy) * rfact2
       ELSE
-                     zproznn(ji,jj,jk) = ( vm ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
+                     zproznn(ji,jj,jk) = ( znpmn * po4r ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
                   &             * dzn / ( dzn + concnzn(ji,jj,jk) )  &
                   &             * zmax * trb(ji,jj,jk,jpphy) * rfact2
       ENDIF ! ln_fezn
       ENDIF ! ln_comnzn_simple   
 ! Diatoms:
-!                     vm = ( znpmd * po4r ) * MAX ( 0.2, (xdiatno3(ji,jj,jk) + xdiatnh4(ji,jj,jk) ) )
-                     vm = qminczd(ji,jj,jk) + ( (znpmd * po4r) - qminczd(ji,jj,jk) ) * ( xdiatno3(ji,jj,jk) + xdiatnh4(ji,jj,jk) )
                      zratio = znpmd * po4r
-                     zratio = vm
                      zratio = trb(ji,jj,jk, jpznd) / ( trb(ji,jj,jk,jpdia) * zratio + rtrn )
                      zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) )
       IF ( ln_comnzn_simple) THEN
                  zqcozn = ( trb(ji,jj,jk,jpznd) + 1.E-3 * trb(ji,jj,jk,jpcod) ) / ( trb(ji,jj,jk,jpdia) + rtrn ) 
                  zmax2 = MIN( 1., ( zcoznued(ji,jj,jk)  * zqcozn ) / (mu_dm(ji,jj,jk) + rtrn) )
-      IF (ln_mnqzn_int) THEN
-                zmax_mnznd(ji,jj,jk) = MAX( 0.1, ( 1. - zratio ) / ABS( 1.05 - zratio ) )
+      IF (ln_mnzn_int) THEN
+                 zmax_mnznd(ji,jj,jk) = MAX( 0.1, ( 1. - zratio ) / ABS( 1.05 - zratio ) )
+!                 zmax_mnznd(ji,jj,jk) = MAX( 0.25, ( 1. - zratio ) / ABS( 1.05 - zratio ) )
       ENDIF
       IF( ln_fezn ) THEN
-                     zproznd(ji,jj,jk) = ( vm ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
+                     zproznd(ji,jj,jk) = ( znpmd * po4r ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
                   &             * dzn / ( dzn + concdzn(ji,jj,jk) )  &
                   &             * ( 4. - 4.5 * xlimdfe(ji,jj,jk) / ( xlimdfe(ji,jj,jk) + 0.5 ) )    &
                   &             * ( 4. - 4.5 * zmax2 / ( zmax2 + 0.5 ) )    &
                   &             * zmax * trb(ji,jj,jk,jpdia) * rfact2
       ELSE
-                     zproznd(ji,jj,jk) = ( vm ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
+                     zproznd(ji,jj,jk) = ( znpmd * po4r ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
                   &             * dzn / ( dzn + concdzn(ji,jj,jk) )  &
                   &             * ( 4. - 4.5 * zmax2 / ( zmax2 + 0.5 ) )    &
                   &             * zmax * trb(ji,jj,jk,jpdia) * rfact2
       ENDIF ! ln_fezn
       ELSE  ! ln_comnzn_simple
       IF( ln_fezn ) THEN
-                     zproznd(ji,jj,jk) = ( vm ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
+                     zproznd(ji,jj,jk) = ( znpmd * po4r ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
                   &             * dzn / ( dzn + concdzn(ji,jj,jk) )  &
                   &             * ( 4. - 4.5 * xlimdfe(ji,jj,jk) / ( xlimdfe(ji,jj,jk) + 0.5 ) )    &
                   &             * zmax * trb(ji,jj,jk,jpdia) * rfact2
       ELSE
-                     zproznd(ji,jj,jk) = ( vm ) * zprmaxd(ji,jj,jk) *(1.0 - fr_i(ji,jk))  &
+                     zproznd(ji,jj,jk) = ( znpmd * po4r ) * zprmaxd(ji,jj,jk) *(1.0 - fr_i(ji,jk))  &
                   &             * dzn / ( dzn + concdzn(ji,jj,jk) )  &
                   &             * zmax * trb(ji,jj,jk,jpdia) * rfact2
       ENDIF ! ln_fezn
@@ -572,14 +559,11 @@ CONTAINS
          DO jj = 1, jpj
             DO ji = 1, jpi
                IF( etot_ndcy(ji,jj,jk) > 1.E-3 ) THEN
-!                     dmn = max(zmnfree(ji,jj,jk), 0. )
-                     dmn = max( trb(ji,jj,jk,jpdmn), 0. )
+                     dmn = max(zmnfree(ji,jj,jk), 0. )
+!                     dmn = max( trb(ji,jj,jk,jpdmn), 0. )
                      dzn = max( bzinc(ji,jj,jk) , 0. )
 ! Nanos:
-!                     vm = ( mnpmn * po4r ) * MAX( 0.2, (xnanono3(ji,jj,jk) + xnanonh4(ji,jj,jk) ) )
-                     vm = qminmnn(ji,jj,jk) + ( (mnpmn * po4r) - qminmnn(ji,jj,jk) ) * ( xnanono3(ji,jj,jk) + xnanonh4(ji,jj,jk) )                     
                      zratio = mnpmn * po4r
-                     zratio = vm
                      zratio = trb(ji,jj,jk, jpmnn) / ( trb(ji,jj,jk,jpphy) * zratio + rtrn )
                      zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) )
       IF ( ln_comnzn_simple) THEN
@@ -587,26 +571,23 @@ CONTAINS
                  zmax2 = MIN( 1., mnlimn(ji,jj,jk) )
                      kmnd = 1. / concnmn(ji,jj,jk)                     
       IF (ln_mnzn_int) THEN
-                     zpromnn(ji,jj,jk) = ( vm ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
+                     zpromnn(ji,jj,jk) = ( mnpmn * po4r ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
                   &             * (dmn*kmnd) / (1. + (dmn*kmnd) + (kznd*dzn) ) &
                   &             * ( 4. - 4.5 * zmax2 / ( zmax2 + 0.5 ) )    &
                   &             * zmax * zmax_mnznn(ji,jj,jk) * trb(ji,jj,jk,jpphy) * rfact2
       ELSE
-                     zpromnn(ji,jj,jk) = ( vm ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
+                     zpromnn(ji,jj,jk) = ( mnpmn * po4r ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
                   &             * dmn / ( dmn + concnmn(ji,jj,jk) )  &
                   &             * ( 4. - 4.5 * zmax2 / ( zmax2 + 0.5 ) )    &
                   &             * zmax * trb(ji,jj,jk,jpphy) * rfact2
       ENDIF ! ln_mnzn_int
       ELSE
-                     zpromnn(ji,jj,jk) = ( vm ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
+                     zpromnn(ji,jj,jk) = ( mnpmn * po4r ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jj))  &
                   &             * dmn / ( dmn + concnmn(ji,jj,jk) )  &
                   &             * zmax * trb(ji,jj,jk,jpphy) * rfact2
       ENDIF ! ln_comnzn_simple
 ! Diatoms:
-!                     vm = ( mnpmd * po4r ) * MAX( 0.2, (xdiatno3(ji,jj,jk) + xdiatnh4(ji,jj,jk) ) )
-                     vm = qminmnd(ji,jj,jk) + ( (mnpmd * po4r) - qminmnd(ji,jj,jk) ) * ( xdiatno3(ji,jj,jk) + xdiatnh4(ji,jj,jk) )
                      zratio = mnpmd * po4r
-                     zratio = vm
                      zratio = trb(ji,jj,jk, jpmnd) / ( trb(ji,jj,jk,jpdia) * zratio + rtrn )
                      zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) )
       IF ( ln_comnzn_simple) THEN
@@ -615,18 +596,18 @@ CONTAINS
                  zmax2 = MIN( 1., mnlimd(ji,jj,jk) )
                      kmnd = 1. / concdmn(ji,jj,jk)
       IF (ln_mnzn_int) THEN
-                     zpromnd(ji,jj,jk) = ( vm ) *zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
+                     zpromnd(ji,jj,jk) = ( mnpmd * po4r ) *zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
                   &             * (dmn*kmnd) / (1. + (dmn*kmnd) + (kznd*dzn) ) &
                   &             * ( 4. - 4.5 * zmax2 / ( zmax2 + 0.5 ) )    &
                   &             * zmax * zmax_mnznd(ji,jj,jk) * trb(ji,jj,jk,jpdia) * rfact2
       ELSE
-                     zpromnd(ji,jj,jk) = ( vm ) *zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
+                     zpromnd(ji,jj,jk) = ( mnpmd * po4r ) *zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
                   &             * dmn / ( dmn + concdmn(ji,jj,jk) )  &
                   &             * ( 4. - 4.5 * zmax2 / ( zmax2 + 0.5 ) )    &
                   &             * zmax * trb(ji,jj,jk,jpdia) * rfact2
       ENDIF ! ln_mnzn_int
       ELSE
-                     zpromnd(ji,jj,jk) = ( vm ) *zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
+                     zpromnd(ji,jj,jk) = ( mnpmd * po4r ) *zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk))  &
                   &             * dmn / ( dmn + concdmn(ji,jj,jk) )  &
                   &             * zmax * trb(ji,jj,jk,jpdia) * rfact2
       ENDIF ! ln_comnzn_simple
@@ -661,17 +642,16 @@ CONTAINS
                      zratio = trb(ji,jj,jk, jpcon) / ( trb(ji,jj,jk,jpphy) * 1000. + rtrn )
                      zratio = zratio / ( copmn * po4r) ! molCo / mol C : mol Co / mol C
                      zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) )! no units
-                     vm = ( copmn * po4r ) * MAX( 0.2, (xnanono3(ji,jj,jk) + xnanonh4(ji,jj,jk) ) )
       IF ( ln_comnzn_simple) THEN
                  zqcozn = ( trb(ji,jj,jk,jpznn) + 1.E-3 * trb(ji,jj,jk,jpcon) ) / ( trb(ji,jj,jk,jpphy) + rtrn )
                  zmax2 = MIN( 1., coznlimn(ji,jj,jk) )
                      kmnd = 1. / concnco(ji,jj,jk)
-                     zprocon(ji,jj,jk) = ( vm ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
+                     zprocon(ji,jj,jk) = ( copmn * po4r) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
                   &             * dco / ( dco + concnco(ji,jj,jk) )  &
                   &             * ( 4. - 4.5 * zmax2 / ( zmax2 + 0.5 ) )    &
                   &             * zmax * trb(ji,jj,jk,jpphy) * rfact2
       ELSE
-                     zprocon(ji,jj,jk) = ( vm ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
+                     zprocon(ji,jj,jk) = ( copmn * po4r) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
                   &             * dco / ( dco + concnco(ji,jj,jk) )  &
                   &             * zmax * trb(ji,jj,jk,jpphy) * rfact2
       ENDIF
@@ -681,26 +661,25 @@ CONTAINS
                      zratio = trb(ji,jj,jk, jpcod) / ( trb(ji,jj,jk,jpdia) * 1000. + rtrn )
                      zratio = zratio / ( copmd * po4r)
                      zmax   = MAX( 0., ( 1. - zratio ) / ABS( 1.05 - zratio ) )
-                     vm = ( copmd * po4r ) * MAX( 0.2, (xdiatno3(ji,jj,jk) + xdiatnh4(ji,jj,jk) ) )
       IF ( ln_comnzn_simple) THEN
                      dzn = max( bzinc(ji,jj,jk) , 0. )
                  zqcozn = ( trb(ji,jj,jk,jpznd) + 1.E-3 * trb(ji,jj,jk,jpcod) ) / ( trb(ji,jj,jk,jpdia) + rtrn ) 
                  zmax2 = MIN( 1., coznlimn(ji,jj,jk) )
                      kmnd = 1. / concdco(ji,jj,jk)
       IF (ln_cozn_int) THEN
-                     zprocod(ji,jj,jk) = ( vm ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
+                     zprocod(ji,jj,jk) = ( copmd * po4r) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
                   &             * ( ( kcoznd * ( 1.E-3 * dco ) ) / & 
                   &             ( 1. + kcoznd * ( ( 1.E-3 * dco ) + dzn ) ) ) &
                   &             * ( 4. - 4.5 * zmax2 / ( zmax2 + 0.5 ) )    &
                   &             * zmax * trb(ji,jj,jk,jpdia) * rfact2
       ELSE
-                     zprocod(ji,jj,jk) = ( vm ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
+                     zprocod(ji,jj,jk) = ( copmd * po4r) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
                   &             * dco / ( dco + concdco(ji,jj,jk) )  &
                   &             * ( 4. - 4.5 * zmax2 / ( zmax2 + 0.5 ) )    &
                   &             * zmax * trb(ji,jj,jk,jpdia) * rfact2
       ENDIF
       ELSE
-                     zprocod(ji,jj,jk) = ( vm ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
+                     zprocod(ji,jj,jk) = ( copmd * po4r) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
                   &             * dco / ( dco + concdco(ji,jj,jk) )  &
                   &             * MAX( 0.10 , ( 3.*(1-zn_fun) ) ) & ! impact of Zn on Co uptake for diatoms
                   &             * zmax * trb(ji,jj,jk,jpdia) * rfact2
@@ -712,6 +691,55 @@ CONTAINS
       ENDIF ! ln_cobalt
 
       ENDIF ! for ln_comnzn logical
+
+!! allow for simple interaction between Mn and Zn uptake, which mimicks
+!! transporter interference 
+
+      IF (ln_mnzn_int) THEN
+      DO jk = 1, jpkm1
+         DO jj = 1, jpj
+            DO ji = 1, jpi
+               IF( etot_ndcy(ji,jj,jk) > 1.E-3 ) THEN
+               ! max updtake nanos
+               vmzn  = ( znpmn * po4r ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
+               &    * trb(ji,jj,jk,jpphy) * rfact2
+               vmmn = ( mnpmn * po4r ) * zprmaxn(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
+               &    * trb(ji,jj,jk,jpphy) * rfact2
+               ! Zn impact on Mn
+               zmax2 = MIN( zproznn(ji,jj,jk) / ( vmzn + rtrn ), 1. )
+               mnznn(ji,jj,jk)  = 1. / ( 1. + ( mnznen *  zmax2 ) )
+               zpromnn(ji,jj,jk) = zpromnn(ji,jj,jk) * mnznn(ji,jj,jk)
+               ! Mn impact on Zn
+               zmax2 = MIN( zpromnn(ji,jj,jk) / ( vmmn + rtrn ), 1. )
+               znmnn(ji,jj,jk)  = 1. / ( 1. + ( znmnen *  zmax2 ) )
+               zproznn(ji,jj,jk) = zproznn(ji,jj,jk) * znmnn(ji,jj,jk)
+               ! max uptake rates (diatoms)
+               vmzn  = ( znpmd * po4r ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
+               &    * trb(ji,jj,jk,jpdia) * rfact2
+               vmmn = ( mnpmd * po4r ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
+               &    * trb(ji,jj,jk,jpdia) * rfact2
+               vmco = ( copmd * po4r ) * zprmaxd(ji,jj,jk) * (1.0 - fr_i(ji,jk)) &
+               &    * trb(ji,jj,jk,jpdia) * rfact2
+               ! Zn impact on Co and Mn
+               zmax2 = MIN( zproznd(ji,jj,jk) / ( vmzn + rtrn ), 1. )
+               mnznd(ji,jj,jk)  = 1. / ( 1. + ( mnzned *  zmax2 ) )
+               coznd(ji,jj,jk)  = 1. / ( 1. + ( cozned *  zmax2 ) )
+               zpromnd(ji,jj,jk) = zpromnd(ji,jj,jk) * mnznd(ji,jj,jk)
+               zprocod(ji,jj,jk) = zprocod(ji,jj,jk) * coznd(ji,jj,jk)
+               ! Co impact on Mn
+               zmax2 = MIN( zprocod(ji,jj,jk) / ( vmco + rtrn ), 1. )
+               mncod(ji,jj,jk)  = 1. / ( 1. + ( mncoed *  zmax2 ) )
+               zpromnd(ji,jj,jk) = zpromnd(ji,jj,jk) * mncod(ji,jj,jk)
+               ! to add
+               ! Mn impact on Zn
+               zmax2 = MIN( zpromnd(ji,jj,jk) / ( vmmn + rtrn ), 1. )
+               znmnd(ji,jj,jk)  = 1. / ( 1. + ( znmned *  zmax2 ) )
+               zproznd(ji,jj,jk) = zproznd(ji,jj,jk) * znmnd(ji,jj,jk)
+               ENDIF ! etot_ndcy
+         END DO
+       END DO
+      END DO
+      ENDIF ! ln_mnzn_int
 
       !   Update the arrays TRA which contain the biological sources and sinks
       DO jk = 1, jpkm1
@@ -1039,7 +1067,9 @@ CONTAINS
          &                 chlcnm, chlcdm, chlcmin, fecnm, fecdm, grosip, cupmn, cupmd, &
          &                 znpmn, znpmd, ln_fezn,  copmn, copmd, ln_cozn, kcozn, mnpmn, mnpmd, &
          &                 ln_comnzn, ln_comnzn_simple, mntmaxd, kmnd, kznd, kcoznd, cozntmaxd, &
-         &                 kb12d, qmnmaxd, qznmaxd, ln_mnzn_int, ln_mnqzn_int, ln_cozn_int
+         &                 kb12d, qmnmaxd, qznmaxd, ln_mnzn_int, ln_cozn_int, mnznen, cozned, & 
+         &                 mnzned, znmnen, znmned, mncoed
+
       !!----------------------------------------------------------------------
       !
       IF(lwp) THEN                         ! control print
@@ -1090,9 +1120,8 @@ CONTAINS
          WRITE(numout,*) '    kb12d=',kb12d
          WRITE(numout,*) '    qmnmaxd=',qmnmaxd
          WRITE(numout,*) '    qznmaxd=',qznmaxd
-         WRITE(numout,*) ' include transporter interaction between Zn and Mn uptake, ln_mnzn_int =',ln_mnzn_int
-         WRITE(numout,*) ' include transporter interaction between Zn and Co uptake, ln_cozn_int =',ln_cozn_int
-         WRITE(numout,*) ' include Zn hyperaccumulationn interaction between Zn and Mn uptake, ln_mnqzn_int =',ln_mnqzn_int
+         WRITE(numout,*) ' include a simple interaction between Zn and Mn uptake, ln_mnzn_int =',ln_mnzn_int
+         WRITE(numout,*) ' include a simple interaction between Zn and Co uptake, ln_cozn_int =',ln_cozn_int
       ENDIF
       !
       r1_rday   = 1._wp / rday 

@@ -17,7 +17,7 @@ Apply the below to the /cfg/ directory:
 My_SRC directory
 EXPREF directory (namelists, file_def, field_def and other xml files)
 
-Example output is found here:  https://doi.org/10.5281/zenodo.4781285
+Example output from the +Mn limitation version of the code (ref expt BYONIC8R1) is found here:  https://doi.org/10.5281/zenodo.4781285
 
 **Installing:**
 

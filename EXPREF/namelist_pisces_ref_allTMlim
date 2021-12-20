@@ -17,6 +17,10 @@
   ln_p5z    = .false.        !  PISCES QUOTA model used
   ln_ligand = .true.        !  Enable  organic ligands
   ln_sediment = .false.      !  Enable sediment module
+  ln_copper = .true.
+  ln_zinc   = .true.
+  ln_cobalt = .true.        ! Enable cobalt tracers (only p4z)
+  ln_manganese = .true. 
 /
 !-----------------------------------------------------------------------
 &nampisext     !   air-sea exchange
@@ -57,6 +61,13 @@
 !                         !  ln_p5z enabled
    no3rat3    =  0.182    ! N/C ratio in zooplankton
    po4rat3    =  0.0094   ! P/C ratio in zooplankton
+   curat3     =  10E-6   ! Co/C in zooplankton
+   znrat3     =  10.E-6   ! Zn/C in zooplankton
+      znf     =  0.03   ! Proportion of diatom zinc in the frustule
+   ln_znf     =  .false.   ! Allow Fe to impact Zn frustule fraction  (T/F)
+   corat3     =  0.16E-6   ! Co/C in zooplankton
+   mnrat3     =  1.E-6   ! Mn/C in zooplankton Ratnarajah 2014 = 3.6, Twinning and Baines 2013 = 2.8
+
 /
 !-----------------------------------------------------------------------
 &namp4zlim     !   parameters for nutrient limitations for PISCES std  - ln_p4z
@@ -77,10 +88,31 @@
    xksi1      =  2.E-6    ! half saturation constant for Si uptake
    xksi2      =  20E-6    ! half saturation constant for Si/C
    xkdoc      =  417.E-6  ! half-saturation constant of DOC remineralization
-   qnfelim    =  7.E-6    ! Optimal quota of phyto
-   qdfelim    =  7.E-6    ! Optimal quota of diatoms
+   qnfelim    =  10.E-6    ! Optimal quota of phyto
+   qdfelim    =  10.E-6    ! Optimal quota of diatoms
    caco3r     =  0.3      ! mean rain ratio
    oxymin     =  1.E-6    ! Half-saturation constant for anoxia
+   kscun      =  4E-9  ! Half sat for Co uptake nanophyto
+   kscud      =  12E-9  ! Half sat for Co uptake diatoms
+   ksznn      =  1.E-9  ! Half sat for Zn uptake nanophyto
+   ksznd      =  3.E-9  ! Half sat for Zn uptake diatoms
+   kscon      =  100.E-12  ! Half sat for Co uptake nanophyto
+   kscod      =  80.E-12  ! Half sat for Co uptake diatoms
+   ksmnn      =  2.E-9  ! Half sat for Mn uptake nanophyto
+   ksmnd      =  6.E-9  ! Half sat for Mn uptake diatoms
+   ln_colim   =  .true. ! account for Co, Zn, Mn limitation
+   ln_colim_int =  .true. ! modulate growth by  Co, Zn, Mn limitation
+   ln_qmndyn  =  .false. ! account for dynamic qmnmin based on Fe and light (max below)
+   qmnmin    = 1.e-6 ! Minimum Mn quota (mol / mol) 
+   mnchln   =  4.97E-6 ! Ratio of Mn to Chl under light limitation mol/g
+   mnchld   =  4.97E-6 ! Ratio of Mn to Chl under light limitation mol/g
+   qcoznmin = 2.E-6 ! Minimum CoZn quota (mol/mol)
+   qcozncan  = 2.e-6 ! CoZn requirement associated with maximum upregulation of carbonic anhydrase
+   qcozncad  = 2.e-6 ! CoZn requirement associated with maximum upregulation of carbonic anhydrase
+   kco2     = 5.E-6 ! mol/kg 
+   qcoznapn = 2.e-6 ! CoZn requirement associated with maximum upregulation of alkaline phosphatase
+   qcoznapd = 2.e-6 ! CoZn requirement associated with maximum upregulation of alkaline phosphatase
+   kpo4  = 0.04E-6 ! mol/L
 /
 !-----------------------------------------------------------------------
 &namp5zlim     !   parameters for nutrient limitations PISCES QUOTA    - ln_p5z
@@ -160,6 +192,30 @@
    fecnm      =  80E-6    ! Maximum Fe/C in nanophytoplankton
    fecdm      =  80E-6    ! Maximum Fe/C in diatoms
    grosip     =  0.159    ! mean Si/C ratio
+   cupmn      =  2.E-3    ! Max Cu/P in nanophytoplankton (mol Zn / mol P)
+   cupmd      =  2.E-3    ! Max Cu/P in diatoms (mol Zn / mol P)
+   znpmn      =  3.66E-3    ! Max Zn/P in nanophytoplankton (mol Zn / mol P)
+   znpmd      =  5.E-3   ! Max Zn/P in diatoms (mol Zn / mol P)
+   ln_fezn    =  .false.   ! Allow Fe to impact Zn/P ratio  (T/F)
+   copmn      =  150.E-6  ! Max Co/P in nanophytoplankton (mol Co / mol P)
+   copmd      =  150.E-6  ! Max Co/P in diatom (mol Co / mol P)
+   ln_cozn    =  .false.  ! Use model Zn or emipirical Zn for Co-Zn interaction
+   kcozn      =  0.5E-9   ! Co-Zn interaction shape function, (mol Zn / L)
+   mnpmn      =  0.732E-3   ! Max Mn/P in nanophytoplankton (mol Mn / mol P)
+   mnpmd      =  0.732E-3   !  Max Mn/P in diatom (mol Mn / mol P)
+   ln_comnzn  = .false.    ! use complex Co / Mn / Zn interactive uptake scheme
+   ln_comnzn_simple = .true. ! simple Co/ Mn / Zn upreg uptake scheme
+   mntmaxd    =  3.E-6       ! maximum quota from Mn transporter
+   kmnd       =  2.E8   ! Binding affinity, Mn for Mn transporter
+   kznd       =  5.E8    ! Binding affinity, Zn for Zn transporter
+   kcoznd     =  5.E9     ! Binding affinity, Co or Zn for high affinity transporter
+   cozntmaxd  =  5.E-6     ! Maximum quota from CoZn transporter
+   kb12d      =  1.E7     ! Binding affinity / internalization constant for Co without CoZn transporter
+   qmnmaxd   =  3.E-6  ! Downregulation threshold for Mn transporter, by Mn
+   qznmaxd   =  10.E-6  ! Downregulation threshold for Mn transporter, by Zn
+   ln_mnzn_int = .true. ! simple Mn-Zn uptake interaction around transporters
+   ln_mnqzn_int= .false. ! simple Mn-Zn uptake interaction from the Zn Quota
+   ln_cozn_int = .true. ! simple Co-Zn uptake interaction around transporters (diatoms only)
 /
 !-----------------------------------------------------------------------
 &namp5zprod    !   parameters for phytoplankton growth for PISCES quota- ln_p5z
@@ -306,6 +362,28 @@
    xlamdust  =  150.0     ! Scavenging rate of dust
    ligand    =  0.7E-9    ! Ligands concentration 
    kfep      =  0.01      ! Nanoparticle formation rate constant
+   culig     = 1.E-9      ! zinc ligand concentration
+   cukdg      = 10.E-3     ! kd for Zn scavenging on poc (1/ (mmol/m3) )
+   cukdp      = 200.E-3     ! kd for Zn scavenging on poc (1/ (mmol/m3) )
+   znlig     = 1.E-9      ! zinc ligand concentration
+   znkdp      = 50.E-3     ! kd for Zn scavenging on poc (1/ (mmol/m3) )
+   znkdg      = 2.E-3     ! kd for Zn scavenging on goc (1/ (mmol/m3) )
+  coscav     =  0.005     ! Co scavenging rate
+  colig      = 20.E-12    ! Background cobalt ligand concentration
+   fnan      = 0.75       ! Max nano fraction for cobalt ligands
+  ko2s       = 25.E-6     ! half saturation o2 for cobalt scav
+  kbacts     = 2.E-6      ! half saturation bact for cobalt scav
+  kpars      = 10.        ! half saturation par for cobalt scav
+  coscav_ox  = 50.E-6    ! O2 threshold for Co scavenging
+  codiss_ox  = 25.E-6     ! O2 threshold for sCo dissolution
+  mnlig      = 0.2E-9     ! Background manganese ligand concentration
+  mnscav     =  0.005     ! Mn scavenging rate
+  mnscav_ox  = 50.E-6    ! O2 threshold for Mn scavenging
+  mndiss_ox  = 25.E-6     ! O2 threshold for sMn dissolution
+  ko2s_mn    = 25.E-6     ! half saturation o2 for cobalt scav
+  kbacts_mn  = 2.E-6      ! half saturation bact for cobalt scav
+  kpars_mn   = 5.        ! half saturation par for cobalt scav
+  rdiss      = 20.       ! relative dissolution rate of Co/Mn oxides
 /
 !-----------------------------------------------------------------------  
 &nampisrem     !   parameters for remineralization
@@ -330,6 +408,8 @@
    xremip    =  0.035     ! remineralisation rate of PON
    jcpoc     =  15        ! Number of lability classes
    rshape    =  1.0       ! Shape of the gamma function
+   ln_dustrfe = .false.   ! modulate iron remin by dust
+   kdust     =  1.E-6     ! shape of dust reminfe function
 !                         ! ln_p5z
    xremipc   =  0.02      ! remineralisation rate of POC
    xremipn   =  0.025     ! remineralisation rate of PON
@@ -347,6 +427,7 @@
 !              !  file name        ! frequency (hours) ! variable      ! time interp. !  clim  ! 'yearly'/ ! weights  ! rotation ! land/sea mask !
 !              !                   !  (if <0  months)  !   name        !   (logical)  !  (T/F) ! 'monthly' ! filename ! pairing  ! filename      !
    sn_dust     = 'dust.orca'       ,     -1            , 'dust'        ,  .true.      , .true. , 'yearly'  , ''       , ''    , ''
+   sn_cudust   = 'currentdep_Mahowald-ORCA2_'       ,    -1   , 'currentdep'   ,  .true.      , .true. , 'yearly'  , ''       , ''    , ''
    sn_solub    = 'solubility.orca' ,    -12            , 'solubility1' ,  .false.     , .true. , 'yearly'  , ''       , ''    , ''
    sn_riverdic = 'river.orca'      ,    120            , 'riverdic'    ,  .true.      , .true. , 'yearly'  , ''       , ''    , ''
    sn_riverdoc = 'river.orca'      ,    120            , 'riverdoc'    ,  .true.      , .true. , 'yearly'  , ''       , ''    , ''
@@ -379,7 +460,32 @@
    hratio      =  1.e+7    ! Fe to 3He ratio assumed for vent iron supply 
 !                          ! ln_ligand
    lgw_rath    =  0.5      ! Weak ligand ratio from sed hydro sources 
-/
+   hydrocu     =  0.0   ! Zn/Fe ratio from hydro sources
+   cusolub     =  0.40     ! Zinc solubility in dust
+   cufrac      = 1
+   ln_curiv    = .true.
+   ln_cudust   = .true.    ! Copper dust input
+   hydrozn     =  0.0   ! Zn/Fe ratio from hydro sources
+   znsolub     =  0.15     ! Zinc solubility in dust
+   znrivconc   =  9.18E-9  ! Zn concentration in rivers (mol/L)
+   susfr       =  0.     ! Fraction of scaveneged Zn dissolved at sediment
+   ln_codust   = .true.    ! boolean for Co dust input
+   ln_cosed    = .true.    ! boolean for Co sed input
+   ln_coriv    = .true.    ! boolean for Co river input
+   cosolub     =  0.08     ! Cobalt solubility in dust
+   co_o2_1     =  150.E-6   ! O2 switch for enhanced Co fluxes
+   co_o2_2     =  10.E-6    ! O2 switch for shutdown of Co fluxes
+   sedco       =  1.E3     ! factor increase in sed co flux at low O2
+   corivconc   =  2.65E-9  ! Co concentration in rivers (mol/L)
+   ln_mndust   = .true.    ! boolean for Co dust input
+   ln_mnsed    = .true.    ! boolean for Co sed input
+   ln_mnriv    = .true.    ! boolean for Co river input
+   mnsolub     =  0.5     ! Manganese solubility in dust (Van Huilten 2018)
+   mn_o2_1     =  150.E-6   ! O2 switch for enhanced Mn fluxes
+   sedmn       =  20.     ! factor increase in sed mn flux at low O2
+   hydromn     =  0.2     ! Mn/Fe ratio from hydro sources  (J. Resing)
+   mnfrac      =  0.03  ! fraction of Mn in natural dust 
+/ 
 !-----------------------------------------------------------------------
 &nampislig     !   Namelist parameters for ligands, nampislig
 !-----------------------------------------------------------------------

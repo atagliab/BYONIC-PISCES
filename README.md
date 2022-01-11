@@ -8,6 +8,10 @@ Tagliabue, A., N. J. Hawco, R. M. Bundy, W. M. Landing, A. Milne, P. L. Morton, 
 
 Richon, C., and A. Tagliabue (2019), Insights into the Major Processes Driving the Global Distribution of Copper in the Ocean from a Global Model, Global Biogeochemical Cycles, doi:10.1029/2019gb006280.
 
+Richon, C., and A. Tagliabue (2021), Biogeochemical feedbacks associated with the response of micronutrient recycling by zooplankton to climate change, Glob Chang Biol, 27(19), 4758-4770, doi:10.1111/gcb.15789.
+
+Hawco, N., Tagliabue, A., and B. S Twining (2022), submitted
+
 **Prerequisites / Getting started:**
 
 svn: http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/release-4.0 r11143
@@ -23,15 +27,14 @@ Example output from the +Mn limitation version of the code (ref expt BYONIC8R1) 
 
 The configuration is compiled using ./makenemo -r BYONIC
 
-Add an annual mean ptrc file (ORCA2) so that users can explore the output of the model to compare it to their own results in case they don't get the same code version and revision.
-
-**Authors:**
+**Author:**
 
 Alessandro Tagliabue
 
 contributors:
 
 Camille Richon
+
 Nick Hawco
 
 **License:**

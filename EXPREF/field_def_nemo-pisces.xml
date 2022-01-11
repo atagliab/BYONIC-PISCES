@@ -122,13 +122,6 @@
        <field id="CUG"     long_name="Big Particulate Organic Cobalt"                       unit="umol/m3" />
        <field id="SCUP"      long_name="Scavenged Cobalt"                       unit="umol/m3" />
        <field id="SCUG"      long_name="Scavenged Cobalt"                       unit="umol/m3" />
-      <!-- PISCES with cobalt parametisation : variables available namelist paramter ln_cobalt -->
-       <field id="DMN"      long_name="Dissolved Manganese"                         unit="umol/m3" />
-       <field id="MNN"      long_name="Nano manganese"                        unit="umol/m3" />
-       <field id="MND"      long_name="Diatom Manganese"                        unit="umol/m3" />
-       <field id="MNP"     long_name="Particulate Organic Manganese"                       unit="umol/m3" />
-       <field id="MNG"     long_name="Big Particulate Organic Manganese"                       unit="umol/m3" />
-       <field id="SMN"      long_name="Scavenged Manganese"                       unit="umol/m3" />
 
        <!-- PISCES with zinc parametisation : variables available with key_zinc -->
        <field id="DZN"      long_name="Dissolved Zinc"                         unit="umol/m3" />
@@ -264,8 +257,8 @@
        <field id="LPRODZ"      long_name="microzooplankton ligand production rate" unit="nmol-L/m3/s"  grid_ref="grid_T_3D" />
        <field id="FEZOO"       long_name="microzooplankton iron recycling rate"    unit="nmol-FeL/m3/s"  grid_ref="grid_T_3D" />
        <field id="FEZOO2"      long_name="mesozooplankton iron recycling rate"     unit="nmol-FeL/m3/s"  grid_ref="grid_T_3D" />
-       <field id="GRAZFE2"    long_name="Mesozooplankton total Fe grazing "       unit="molFe/m3/s"  grid_ref="grid_T_3D" />
-       <field id="GRAZFE"      long_name="Microzooplankton Total Fe grazing "      unit="molFe/m3/s"  grid_ref="grid_T_3D" />
+       <field id="GRAZFEC2"    long_name="Mesozooplankton preys Fe:C"              unit="molFe/molC"  grid_ref="grid_T_3D" />
+       <field id="GRAZFEC"     long_name="Microzooplankton preys Fe:C"             unit="molFe/molC"  grid_ref="grid_T_3D" />
        <field id="GRAZFEN1"     long_name="Microzooplankton total nano Cu grazing" unit="molCu/m3/s"  grid_ref="grid_T_3D" />
        <field id="GRAZFED1"     long_name="Microzooplankton total dia grazing" unit="molCu/m3/s"  grid_ref="grid_T_3D" />
        <field id="GRAZFEP1"     long_name="Microzooplankton total poc grazing" unit="molCu/m3/s"  grid_ref="grid_T_3D" />
@@ -277,10 +270,6 @@
        <field id="GRAZFEFFG"     long_name="Mesozooplankton total FFGOC N grazing" unit="molC/m3/s"  grid_ref="grid_T_3D" />
        <field id="CZOO"         long_name="microzooplankton C recycling rate"    unit="nmol-CL/m3/s"  grid_ref="grid_T_3D" />
        <field id="CZOO2"         long_name="mesozooplankton C recycling rate"    unit="nmol-CL/m3/s"  grid_ref="grid_T_3D" />
-       <field id="ASSIMFE"      long_name="Microzooplankton Fe AE "               unit="-"             grid_ref="grid_T_3D" />
-       <field id="ASSIMFE2"     long_name="Mesozooplankton Fe AE "               unit="-"             grid_ref="grid_T_3D" />
-       <field id="ASSIMC"      long_name="Microzooplankton C AE "               unit="-"             grid_ref="grid_T_3D" />
-       <field id="ASSIMC2"      long_name="Mesozooplankton C AE "               unit="-"             grid_ref="grid_T_3D" />
 
 <!--PISCES with Zinc  parametisation : variables available with ln_zinc -->
        <field id="PZNN"        long_name="Primary production of nano zinc"         unit="mol/m3/s"   grid_ref="grid_T_3D" />
@@ -346,41 +335,7 @@
        <field id="EPCO100"      long_name="Export of cobalt particles at 100 m"     unit="nmol/m2/s"                        />
        <field id="EXPCO"        long_name="Export of cobalt"                        unit="nmol/m2/s"   grid_ref="grid_T_3D" />
        <field id="Cobaltsed"  long_name="Cobalt flux  from sediment"           unit="mmol/m3/s"  grid_ref="grid_T_3D"  />
-       <!-- PISCES with Manganese  parametisation : variables available with ln_manganese -->
-       <field id="Mnpr"   long_name="Free Manganese"                         unit="nmol-Mn/m3" grid_ref="grid_T_3D" />
-       <field id="MnLig"   long_name="Manganese Ligands"                         unit="nmol-Mn/m3" grid_ref="grid_T_3D" />
-       <field id="PMNN"        long_name="Primary production of nano manganese"         unit="nmol-Mn/m3/s" grid_ref="grid_T_3D" />
-       <field id="PMND"        long_name="Primary production of diatom manganese"         unit="nmol-Mn/m3/s" grid_ref="grid_T_3D" />
-       <field id="MnSCAV"       long_name="Scavenging of manganese"                  unit="mmol-Mn/m3/s"  grid_ref="grid_T_3D" />
-       <field id="MnDISS"       long_name="Dissolution of scavenged manganese"        unit="mmolMn/m3/s"  grid_ref="grid_T_3D" />
-       <field id="REMINMN"       long_name="Manganese Remineralisation"                  unit="mmol-Mn/m3/s"  grid_ref="grid_T_3D" />
-       <field id="MNZOO"     long_name="microzooplankton manganese recycling rate" unit="nmol-Mn/m3/s"  grid_ref="grid_T_3D" />
-       <field id="MNZOO2"     long_name="mesozooplankton manganese recycling rate" unit="nmol-Mn/m3/s"  grid_ref="grid_T_3D" />
-       <field id="EPSMN100"      long_name="Export of scaveneged manganese at 100 m"     unit="nmol/m2/s"                        />
-       <field id="EPMN100"      long_name="Export of manganese particles at 100 m"     unit="nmol/m2/s"                        />
-       <field id="EXPMN"        long_name="Export of manganese"                        unit="nmol/m2/s"   grid_ref="grid_T_3D" />
-       <field id="mangased"  long_name="Manganese flux  from sediment"           unit="mmol/m3/s"  grid_ref="grid_T_3D"  />
-       <!-- PISCES with colim param ln_colim -->
-       <field id="MNUED"   long_name="Mn use efficiency, diatoms"                         unit="1/(Mn/C/s)" grid_ref="grid_T_3D" />
-       <field id="COZNUED"   long_name="CoZn use efficiency, diatoms"                         unit="1/(CoZn/C/s)" grid_ref="grid_T_3D" />
-       <field id="MNLIMD"   long_name="Mn limitation, diatoms"                         unit="no units" grid_ref="grid_T_3D" />
-       <field id="COZNLIMD"   long_name="CoZn limitation, diatoms"                         unit="no units" grid_ref="grid_T_3D" />
-       <field id="COLIMD"   long_name="Mn-Co-Zn Co-limitation, diatoms"                         unit="no units" grid_ref="grid_T_3D" />
-       <field id="MNT"   long_name="Mn transporter, diatoms"                      unit="no units" grid_ref="grid_T_3D" />
-       <field id="COZNT"   long_name="Co/Zn transporter, diatoms"                      unit="no units" grid_ref="grid_T_3D" />
-       <field id="MNZND"   long_name="Downreg factor for Mn uptake due to Zn uptake, diatom"  unit="no units" grid_ref="grid_T_3D" />
-       <field id="COZND"   long_name="Downreg factor for Co uptake due to Zn uptake, diatom"  unit="no units" grid_ref="grid_T_3D" />
-       <field id="MNCOD"   long_name="Downreg factor for Mn uptake due to Co uptake, diatom"  unit="no units" grid_ref="grid_T_3D" />
-       <field id="MNUEN"   long_name="Mn use efficiency, nanos"                         unit="1/(Mn/C/s)" grid_ref="grid_T_3D" />
-       <field id="ZNMND"   long_name="Downreg factor for Zn uptake due to Mn uptake, diatom"  unit="no units" grid_ref="grid_T_3D" />
-       <field id="COZNUEN"   long_name="CoZn use efficiency, nanos"                         unit="1/(CoZn/C/s)" grid_ref="grid_T_3D" />
-       <field id="MNLIMN"   long_name="Mn limitation, nanos"                         unit="no units" grid_ref="grid_T_3D" />
-       <field id="COZNLIMN"   long_name="CoZn limitation, nanos"                         unit="no units" grid_ref="grid_T_3D" />
-       <field id="COLIMN"   long_name="Mn-Co-Zn Co-limitation, nanos"                         unit="no units" grid_ref="grid_T_3D" />
-       <field id="MNZNN"   long_name="Downreg factor for Mn uptake due to Zn uptake, nano"  unit="no units" grid_ref="grid_T_3D" />
-       <field id="ZNMNN"   long_name="Downreg factor for Zn uptake due to Mn uptake, nano"  unit="no units" grid_ref="grid_T_3D" />
-       <field id="PCO2"   long_name="CO2 partial pressure"  unit="micro atm"                        />
-       <field id="CO2AQ"   long_name="CO2* "  unit="mol/kg" grid_ref="grid_T_3D" />
+
        <!-- dbio_T on T grid : variables available with diaar5 -->
        <field id="TPP"         long_name="Total Primary production of phyto"                   unit="mol/m3/s"  grid_ref="grid_T_3D" />
        <field id="TPNEW"       long_name="New Primary production of phyto"                     unit="mol/m3/s"  grid_ref="grid_T_3D" />
@@ -447,11 +402,6 @@
        <field id="psiltot"         long_name="Global mean silicate concentration"                 unit="mol/m3"   />
        <field id="palktot"         long_name="Global mean alkalinity concentration"               unit="mol/m3"   />
        <field id="pfertot"         long_name="Global mean iron concentration"                     unit="mol/m3"   />
-       <field id="poxytot"         long_name="Global mean iron concentration"                     unit="mol/m3"   />
-       <field id="pcobalttot"         long_name="Global mean iron concentration"                     unit="mol/m3"   />
-       <field id="pmanganesetot"    long_name="Global mean manganese concentration"               unit="mol/m3"   />
-       <field id="pcoppertot"         long_name="Global mean iron concentration"                     unit="mol/m3"   />
-       <field id="pzinctot"         long_name="Global mean iron concentration"                     unit="mol/m3"   />
        <field id="tcflx"           long_name="Total Flux of Carbon out of the ocean"              unit="mol/s"   />
        <field id="tcflxcum"        long_name="Cumulative total Flux of Carbon out of the ocean"   unit="mol/s"   />
        <field id="tcexp"           long_name="Total Carbon export at 100m"                        unit="mol/s"   />

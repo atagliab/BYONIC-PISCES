@@ -203,7 +203,6 @@
    kcozn      =  0.5E-9   ! Co-Zn interaction shape function, (mol Zn / L)
    mnpmn      =  0.732E-3   ! Max Mn/P in nanophytoplankton (mol Mn / mol P)
    mnpmd      =  0.732E-3   !  Max Mn/P in diatom (mol Mn / mol P)
-   ln_comnzn  = .false.    ! use complex Co / Mn / Zn interactive uptake scheme
    ln_comnzn_simple = .true. ! simple Co/ Mn / Zn upreg uptake scheme
    mntmaxd    =  3.E-6       ! maximum quota from Mn transporter
    kmnd       =  2.E8   ! Binding affinity, Mn for Mn transporter

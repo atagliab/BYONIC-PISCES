@@ -10,7 +10,7 @@ Richon, C., and A. Tagliabue (2019), Insights into the Major Processes Driving t
 
 Richon, C., and A. Tagliabue (2021), Biogeochemical feedbacks associated with the response of micronutrient recycling by zooplankton to climate change, Glob Chang Biol, 27(19), 4758-4770, doi:10.1111/gcb.15789.
 
-Hawco, N., Tagliabue, A., and B. S Twining (2022), submitted
+Hawco, N. J., A. Tagliabue, and B. S. Twining (2022), Manganese Limitation of Phytoplankton Physiology and Productivity in the Southern Ocean, Global Biogeochemical Cycles, 36(11), doi:10.1029/2022gb007382.
 
 **Prerequisites / Getting started:**
 
